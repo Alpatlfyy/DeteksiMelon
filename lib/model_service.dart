@@ -4,7 +4,7 @@ class ModelService {
   late Interpreter interpreter;
 
   Future<void> loadModel() async {
-    interpreter = await Interpreter.fromAsset('model/best_float16.tflite');
+    interpreter = await Interpreter.fromAsset('assets/model/best_float16.tflite');
     print("Model loaded!");
   }
 

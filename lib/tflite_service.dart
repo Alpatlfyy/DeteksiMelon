@@ -20,12 +20,12 @@ class TFLiteService {
   Future<void> loadModel() async {
     try {
       _interpreter = await Interpreter.fromAsset(
-        'model/best_float16.tflite',
+        'assets/model/best_float16.tflite',
         options: InterpreterOptions()..threads = 2,
       );
 
       labels = await rootBundle
-          .loadString('model/labels.txt')
+          .loadString('assets/model/labels.txt')
           .then((value) => value.split('\n').where((e) => e.trim().isNotEmpty).toList());
 
       print("✅ TFLite berhasil di-load! Jumlah label: ${labels.length}");
