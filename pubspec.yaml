@@ -41,7 +41,7 @@ dependencies:
 
   # AI & model TensorFlow
   google_generative_ai: ^0.4.3
-  tflite_flutter: ^0.11.0
+  tflite_flutter: 0.10.4
 
   # Firebase (versi terbaru dan saling cocok)
   firebase_core: ^3.7.0
@@ -82,6 +82,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/model/model_melon.tflite
+    - assets/model/best_float16.tflite
     - assets/model/labels.txt
     - assets/images/default_profile.png
     - assets/images/leaf_spot.jpg

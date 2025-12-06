@@ -68,20 +68,18 @@ class _DetectorPageState extends State<DetectorPage> with WidgetsBindingObserver
     try {
       await _tfliteService.loadModel();
       if (mounted) {
-        setState(() {
-          _isTfliteInitialized = true;
-        });
+        setState(() => _isTfliteInitialized = true);
       }
     } catch (e) {
       print("Error inisialisasi TFLite: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          // Teks UI: Sudah Bahasa Indonesia
           const SnackBar(content: Text("Error TFLite: Gagal memuat model.")),
         );
       }
     }
   }
+
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -246,35 +244,31 @@ Jelaskan secara singkat apa yang menyebabkan penyakit ini (misalnya jamur, bakte
   Future<void> _performDetectionCNN() async {
     if (_image == null || _isAnalyzing || !_isTfliteInitialized) return;
 
-    setState(() {
-      _isAnalyzing = true;
-    });
+    setState(() => _isAnalyzing = true);
 
     try {
-      final String cnnResult = await _tfliteService.runInference(_image!);
+      // 🔥 Panggil TFLiteService versi kamu
+      final result = await _tfliteService.predict(_image!);
 
-      // Bersihkan Markdown
-      final cleanedResult = _cleanResultText(cnnResult);
+      final String label = result["label"];
+      final double confidence = result["confidence"];
 
-      // Simpan ke Realtime Database
+      final String formattedCnnOutput = """
+⚡ Hasil Deteksi CNN (Offline)
+
+📌 Identifikasi: $label
+🎯 Confidence: ${(confidence * 100).toStringAsFixed(2)} %
+
+Catatan:
+- Model menggunakan YOLOv8-Classification (TFLite).
+""";
+
+      // 🔥 Simpan ke database
       await _saveDetectionToRealtimeDB(
         method: "CNN",
-        label: cleanedResult.substring(0, cleanedResult.length > 100 ? 100 : cleanedResult.length),
-        confidence: 1.0,
+        label: label,
+        confidence: confidence,
       );
-
-      // Buat teks UI rapi tanpa Markdown
-      final String formattedCnnOutput = """
-      ⚡ Hasil Deteksi Cepat (Offline)
-      
-      Berdasarkan analisis model CNN pada perangkat Anda, gambar ini teridentifikasi sebagai:
-      
-      $cleanedResult
-      
-      Catatan:
-      - Hasil ini adalah klasifikasi awal dan tidak memberikan detail penanganan.
-      - Untuk analisis mendalam mengenai gejala, penyebab, dan solusi, silakan gunakan tombol "DETEKSI GEMINI (ONLINE)".
-      """;
 
       if (mounted) {
         await Navigator.of(context).push(
@@ -303,7 +297,6 @@ Jelaskan secara singkat apa yang menyebabkan penyakit ini (misalnya jamur, bakte
       }
     }
   }
-
 
   // 🔹 Tambahan baru: Simpan hasil ke Realtime Database
   Future<void> _saveDetectionToRealtimeDB({

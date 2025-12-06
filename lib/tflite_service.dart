@@ -1,88 +1,127 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
+
 import 'package:flutter/services.dart';
-import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
+import 'package:tflite_flutter/tflite_flutter.dart';
 
 class TFLiteService {
   Interpreter? _interpreter;
-  late List<String> _labels;
-  late int inputSize;
+  late List<String> labels;
 
-  static const String modelPath = 'assets/model/model_melon.tflite';
-  static const String labelPath = 'assets/model/labels.txt';
+  static final TFLiteService _instance = TFLiteService._internal();
+  factory TFLiteService() => _instance;
+  TFLiteService._internal();
 
+  // ========================================================================
+  // LOAD MODEL
+  // ========================================================================
   Future<void> loadModel() async {
     try {
-      _interpreter = await Interpreter.fromAsset(modelPath);
-      final labelData = await rootBundle.loadString(labelPath);
-      _labels = labelData.split('\n').where((e) => e.isNotEmpty).toList();
+      _interpreter = await Interpreter.fromAsset(
+        'model/best_float16.tflite',
+        options: InterpreterOptions()..threads = 2,
+      );
 
-      final inputShape = _interpreter!.getInputTensor(0).shape;
-      inputSize = inputShape.length == 4 ? inputShape[1] : inputShape[0];
+      labels = await rootBundle
+          .loadString('model/labels.txt')
+          .then((value) => value.split('\n').where((e) => e.trim().isNotEmpty).toList());
 
-      print("✅ Model berhasil dimuat (${_labels.length} kelas).");
-      print("📏 Input tensor shape: $inputShape");
+      print("✅ TFLite berhasil di-load! Jumlah label: ${labels.length}");
     } catch (e) {
-      print("❌ Error memuat model: $e");
+      print("❌ Gagal load TFLite: $e");
       rethrow;
     }
   }
 
-  Float32List _preProcessImage(File imageFile) {
-    final img.Image? originalImage =
-    img.decodeImage(imageFile.readAsBytesSync());
-    if (originalImage == null) throw Exception("Gagal decode gambar");
+  // ========================================================================
+  // PREPROCESS: File → Float32List (1,224,224,3)
+  // ========================================================================
+  Future<Float32List> _preprocess(File imageFile) async {
+    final imgBytes = await imageFile.readAsBytes();
+    img.Image? oriImage = img.decodeImage(imgBytes);
 
-    final img.Image resized = img.copyResize(
-      originalImage,
-      width: inputSize,
-      height: inputSize,
-    );
+    if (oriImage == null) {
+      throw Exception("Gambar tidak dapat dibuka/dikonversi.");
+    }
 
-    final Float32List buffer = Float32List(inputSize * inputSize * 3);
-    int i = 0;
+    final resized = img.copyResize(oriImage, width: 224, height: 224);
 
-    for (int y = 0; y < inputSize; y++) {
-      for (int x = 0; x < inputSize; x++) {
+    // YOLOv8-Classification TFLite: input shape [1,224,224,3]
+    final Float32List inputBuffer = Float32List(224 * 224 * 3);
+    int index = 0;
+
+    for (int y = 0; y < 224; y++) {
+      for (int x = 0; x < 224; x++) {
         final pixel = resized.getPixel(x, y);
-        buffer[i++] = pixel.r / 255.0;
-        buffer[i++] = pixel.g / 255.0;
-        buffer[i++] = pixel.b / 255.0;
+
+        inputBuffer[index++] = pixel.r / 255.0;
+        inputBuffer[index++] = pixel.g / 255.0;
+        inputBuffer[index++] = pixel.b / 255.0;
       }
     }
-    return buffer;
+
+    return inputBuffer;
   }
 
-  Future<String> runInference(File imageFile) async {
-    if (_interpreter == null) throw Exception("Model belum dimuat.");
+  // ========================================================================
+  // SOFTMAX
+  // ========================================================================
+  List<double> _softmax(List<double> logits) {
+    double maxLogit = logits.reduce(max);
+    List<double> expVals = logits.map((e) => exp(e - maxLogit)).toList();
+    double sum = expVals.reduce((a, b) => a + b);
+    return expVals.map((e) => e / sum).toList();
+  }
 
-    final inputBuffer = _preProcessImage(imageFile);
-    final input = inputBuffer.reshape([1, inputSize, inputSize, 3]);
+  // ========================================================================
+  // PREDICT
+  // ========================================================================
+  Future<Map<String, dynamic>> predict(File imageFile) async {
+    if (_interpreter == null) {
+      await loadModel();
+    }
 
-    final outputTensor = _interpreter!.getOutputTensor(0);
-    final outputShape = outputTensor.shape;
-    final output = List.filled(outputShape.last, 0.0).reshape([1, outputShape.last]);
+    final input = await _preprocess(imageFile);
 
-    _interpreter!.run(input, output);
+    // OUTPUT shape: [1, num_classes]
+    final output = List.filled(labels.length, 0.0).reshape([1, labels.length]);
 
-    final results = List<double>.from(output[0]);
+    _interpreter!.run(input.reshape([1, 224, 224, 3]), output);
+
+    final List<double> logits = output[0].cast<double>();
+    final probs = _softmax(logits);
+
+    // Ambil label paling tinggi
     int maxIndex = 0;
-    double maxProb = results[0];
+    double maxValue = probs[0];
 
-    for (int i = 1; i < results.length; i++) {
-      if (results[i] > maxProb) {
-        maxProb = results[i];
+    for (int i = 1; i < probs.length; i++) {
+      if (probs[i] > maxValue) {
+        maxValue = probs[i];
         maxIndex = i;
       }
     }
 
-    final label = _labels[maxIndex];
-    return "🩺 Prediksi: $label\nConfidence: ${(maxProb * 100).toStringAsFixed(2)}%";
+    return {
+      "label": labels[maxIndex],
+      "confidence": maxValue,
+      "raw_probabilities": probs,
+    };
   }
 
+  // ========================================================================
+  // DISPOSE
+  // ========================================================================
   void dispose() {
-    _interpreter?.close();
-    _interpreter = null;
+    try {
+      _interpreter?.close();
+      print("🧹 Interpreter TFLite dibersihkan.");
+    } catch (e) {
+      print("⚠ Error saat dispose: $e");
+    } finally {
+      _interpreter = null;
+    }
   }
 }

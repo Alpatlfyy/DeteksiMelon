@@ -1,5 +1,7 @@
-Downy_Mildew
-Healthy
-Leaf_Blight
-Powdery_Mildew
+Melon_Alternatia leaf blight
+Melon_Downy mildew
+Melon_Healthy
+Melon_Powdery mildew
+Melon_Virus
+OK
 

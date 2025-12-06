@@ -1,38 +1,38 @@
 {
   "project_info": {
-    "project_number": "414521075405",
-    "firebase_url": "https://tadd-2c10d-default-rtdb.firebaseio.com",
-    "project_id": "tadd-2c10d",
-    "storage_bucket": "tadd-2c10d.appspot.com"
+    "project_number": "758781699779",
+    "firebase_url": "https://uilogin-c62bc-default-rtdb.firebaseio.com",
+    "project_id": "uilogin-c62bc",
+    "storage_bucket": "uilogin-c62bc.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:414521075405:android:94fafe6ddf0fc5876bab84",
+        "mobilesdk_app_id": "1:758781699779:android:74599d47c36ecc0c6be476",
         "android_client_info": {
           "package_name": "com.example.melonguard"
         }
       },
       "oauth_client": [
         {
-          "client_id": "414521075405-sbpho2gp2h6beiibue1gvll4j31843fv.apps.googleusercontent.com",
+          "client_id": "758781699779-8sgrctlr5bf9o5lrhq7nef8vue7ovl5e.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBuFWWWK3klt76aon40zbITz37a4ehPXes"
+          "current_key": "AIzaSyCq6PsjHD-824AVxf025REJAAc1CtqikUo"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "414521075405-sbpho2gp2h6beiibue1gvll4j31843fv.apps.googleusercontent.com",
+              "client_id": "758781699779-8sgrctlr5bf9o5lrhq7nef8vue7ovl5e.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "414521075405-bl4g6ku21q4djvfbi91qlbokclq88jmf.apps.googleusercontent.com",
+              "client_id": "758781699779-hk1cu9b7chf6t3bnh3roccukg0sng9in.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.melonguard"
@@ -44,31 +44,67 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:414521075405:android:1af290b5a924f0686bab84",
+        "mobilesdk_app_id": "1:758781699779:android:e42d128a2a795da56be476",
         "android_client_info": {
-          "package_name": "com.example.ta"
+          "package_name": "com.example.sneak"
         }
       },
       "oauth_client": [
         {
-          "client_id": "414521075405-sbpho2gp2h6beiibue1gvll4j31843fv.apps.googleusercontent.com",
+          "client_id": "758781699779-8sgrctlr5bf9o5lrhq7nef8vue7ovl5e.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBuFWWWK3klt76aon40zbITz37a4ehPXes"
+          "current_key": "AIzaSyCq6PsjHD-824AVxf025REJAAc1CtqikUo"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "414521075405-sbpho2gp2h6beiibue1gvll4j31843fv.apps.googleusercontent.com",
+              "client_id": "758781699779-8sgrctlr5bf9o5lrhq7nef8vue7ovl5e.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "414521075405-bl4g6ku21q4djvfbi91qlbokclq88jmf.apps.googleusercontent.com",
+              "client_id": "758781699779-hk1cu9b7chf6t3bnh3roccukg0sng9in.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.melonguard"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:758781699779:android:50c1d80e8fb0b2046be476",
+        "android_client_info": {
+          "package_name": "com.example.uilogin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "758781699779-8sgrctlr5bf9o5lrhq7nef8vue7ovl5e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq6PsjHD-824AVxf025REJAAc1CtqikUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "758781699779-8sgrctlr5bf9o5lrhq7nef8vue7ovl5e.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "758781699779-hk1cu9b7chf6t3bnh3roccukg0sng9in.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.melonguard"
